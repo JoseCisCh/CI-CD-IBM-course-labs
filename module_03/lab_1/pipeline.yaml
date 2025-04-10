@@ -1,0 +1,79 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:  
+  name: hello-pipeline
+spec:
+  #params for all the pipeline
+  # these params will be referenced in each particular task
+  # as they are needed by each one.
+  params: 
+    - name: message
+      type: string
+      description: "Message to display"
+  tasks:
+    
+
+    - name: hello
+      taskRef:
+        name: echo
+      params: 
+      - name: message
+        value: "$(params.message)"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: cd-pipeline
+spec:
+  params: 
+    - name: repo-url
+      type: string
+      description: The Url the git repo to clone.
+    - name: branch
+      type: string
+      description: The branch to clone.
+      default: "master"
+  tasks:
+    - name: clone
+      taskRef:
+        name: checkout
+      params: 
+      - name: repo-url
+        value: "$(params.repo-url)"
+      - name: branch
+        value: "$(params.branch)"
+    - name: lint 
+      taskRef:
+        name: echo
+      params:
+      - name: message
+        value: "Calling Flake8 linter"
+      runAfter:
+        - clone
+    - name: tests 
+      taskRef:
+        name: echo
+      params:
+        - name: message
+          value: "Running tests with PyUnit"
+      runAfter:
+        - lint
+    - name: build
+      taskRef:
+        name: echo
+      params:
+        - name: message
+          value: "Building image for $(params.repo-url)"
+      runAfter:
+        - tests
+    - name: deploy
+      taskRef:
+        name: echo
+      params:
+        - name: message
+          value: "Deploying branch $(params.branch) of  $(params.repo-url)"
+      runAfter:
+        - build
+  
+
+        
