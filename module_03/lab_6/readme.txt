@@ -57,3 +57,16 @@
 ## The follwing line indicates that the application was deployed successfully
 
    [deploy : oc] deployment.apps/hitcounter created 
+
+## Check the deployment (running state)
+
+    kubectl get all -l app=hitcounter
+
+    NAME                              READY   STATUS    RESTARTS   AGE
+pod/hitcounter-599585f774-xfmz5   1/1     Running   0          3m7s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/hitcounter   1/1     1            1           3m8s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/hitcounter-599585f774   1         1         1       3m8s
